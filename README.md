@@ -15,6 +15,18 @@ and generating ideas from it, all against models I host myself.
 - `mind/ingest/screenpipe.py` — reads the local Screenpipe API and emits
   normalized entries as JSONL.
 
+## Local models
+
+Served by Ollama on `localhost:11434` (`brew services start ollama`).
+
+| Model | Size | Use |
+|:--|--:|:--|
+| `llama3.2:3b` | 2.0 GB | Default. Non-reasoning, terse, good for extraction and summarization |
+| `qwen3:4b` | 2.5 GB | Reasoning model. Keep for tasks that benefit from deliberation |
+
+`qwen3:4b` reasons before answering and ignores `/no_think`, so it needs a much larger
+`num_predict` and is a poor fit for structured extraction. Default to `llama3.2:3b`.
+
 ## Running
 
 The local Screenpipe API requires a bearer token:
