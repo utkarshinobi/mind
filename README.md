@@ -10,10 +10,13 @@ and generating ideas from it, all against models I host myself.
 
 ## Layout
 
-- `mind/schema.py` — the ingestion contract. Every producer (Screenpipe, phone,
-  anything later) normalizes to this one shape.
-- `mind/ingest/screenpipe.py` — reads the local Screenpipe API and emits
-  normalized entries as JSONL.
+```
+src/mind/      the app (installed as the `mind` command)
+tests/         pytest suite, synthetic fixtures only
+decisions/     why each design choice was made
+docs/          architecture overview
+book/          chapter notes from AI Engineering
+```
 
 ## Local models
 
@@ -27,13 +30,15 @@ Served by Ollama on `localhost:11434` (`brew services start ollama`).
 `qwen3:4b` reasons before answering and ignores `/no_think`, so it needs a much larger
 `num_predict` and is a poor fit for structured extraction. Default to `llama3.2:3b`.
 
-## Running
+## Development
 
-The local Screenpipe API requires a bearer token:
+Requires [uv](https://docs.astral.sh/uv/) (`brew install uv`).
 
 ```bash
-export MIND_SCREENPIPE_TOKEN="$(cd "$(mktemp -d)" && /Applications/screenpipe.app/Contents/MacOS/bun x screenpipe@latest auth token)"
-python3 -m mind.ingest.screenpipe --hours 24
+make install    # create .venv, install everything pinned in uv.lock
+make check      # format check, lint, type check, tests (same as CI)
+make fmt        # auto-format and auto-fix lint
+uv run mind --version
 ```
 
 Output is one JSON entry per line on stdout; a summary goes to stderr.

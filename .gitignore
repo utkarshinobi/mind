@@ -1,6 +1,22 @@
+# Python
 __pycache__/
 *.pyc
+.venv/
+dist/
+
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Personal data: never commit
 .env
 data/
 *.jsonl
+*.db
+*.sqlite
+*.sqlite-*
+
 .DS_Store
