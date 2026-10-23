@@ -61,12 +61,15 @@ def test_stats_add_up() -> None:
         frame(3, app="Finder", full_text="file list"),
         frame(4, url="https://accounts.google.com/signin", full_text="sign in page"),
         frame(5, url="https://site.test/b", tree=tree(node("typed note", "AXTextArea"))),
+        frame(6, url="https://site.test/c", tree=tree(node("Settings", "AXButton"))),
     ]
     stats = clean(frames, DEFAULT_POLICY).stats
-    assert stats.frames_read == 5
+    assert stats.frames_read == 6
     assert stats.blocked_app == 1
     assert stats.blocked_host == 1
-    assert stats.frames_kept == 3
+    assert stats.frames_kept == 4
     assert stats.visits == 2
+    # Regression: a controls-only page is "no text", not "emptied by boilerplate".
+    assert (stats.visits_without_text, stats.visits_emptied) == (1, 0)
     assert (stats.lines_read, stats.lines_me) == (2, 1)
     assert stats.frames_read == stats.blocked_app + stats.blocked_host + stats.frames_kept

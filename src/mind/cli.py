@@ -117,8 +117,11 @@ def print_summary(s: CleanStats, db: Path, seconds: float) -> None:
     print(f"  blocked      {s.blocked_app:,} by app · {s.blocked_host:,} by site")
     print(f"Visits         {s.visits:,}  →  {db}")
     print(f"Lines          {s.lines_read:,} read · {s.lines_me:,} me")
-    dropped, emptied = s.boilerplate_dropped, s.visits_emptied
-    print(f"Boilerplate    {dropped:,} lines dropped · {emptied:,} visits emptied")
+    print(f"Boilerplate    {s.boilerplate_dropped:,} lines dropped")
+    print(
+        f"Skipped        {s.visits_without_text:,} visits with no text · "
+        f"{s.visits_emptied:,} only boilerplate"
+    )
 
 
 # --- show / stats -----------------------------------------------------------

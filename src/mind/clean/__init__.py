@@ -26,7 +26,8 @@ class CleanStats:
     lines_me: int = 0
     lines_read: int = 0
     boilerplate_dropped: int = 0
-    visits_emptied: int = 0
+    visits_without_text: int = 0  # nothing left after the structure step (e.g. new-tab pages)
+    visits_emptied: int = 0  # had text, but all of it was boilerplate
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,9 @@ def clean(frames: Iterable[Frame], policy: Policy) -> CleanResult:
                 yield frame, extract_lines(frame.tree, frame.full_text)
 
     visits = group_visits(allowed_with_lines())
-    result = drop_boilerplate(visits)
+    with_text = [v for v in visits if v.lines]
+    stats.visits_without_text = len(visits) - len(with_text)
+    result = drop_boilerplate(with_text)
 
     stats.visits = len(result.visits)
     stats.boilerplate_dropped = result.lines_dropped
