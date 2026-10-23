@@ -13,6 +13,8 @@ mind = "mind.cli:main"
 [dependency-groups]
 dev = [
     "mypy>=1.11",
+    "pip-audit>=2.10.1",
+    "pre-commit>=4.7.0",
     "pytest>=8.3",
     "pytest-cov>=5.0",
     "ruff>=0.6",
@@ -39,8 +41,9 @@ select = [
 
 [tool.mypy]
 strict = true
-files = ["src"]
+files = ["src", "tools"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["tools"]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
