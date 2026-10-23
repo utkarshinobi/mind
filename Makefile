@@ -1,7 +1,10 @@
-.PHONY: install fmt lint typecheck test check
+.PHONY: install hooks fmt lint typecheck test check
 
 install:  ## create .venv and install all dependencies from uv.lock
 	uv sync
+
+hooks:  ## install the leak-guard git hooks (Gate 1); run once per clone
+	uv run pre-commit install
 
 fmt:  ## rewrite files: format + auto-fix lint
 	uv run ruff format .

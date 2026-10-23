@@ -5,13 +5,19 @@ on:
   push:
     branches: [main]
 
+# Least privilege: jobs can read the repo and nothing else.
+permissions:
+  contents: read
+
+# Actions are pinned to full commit SHAs. A tag like @v7 can be moved to
+# different code; a SHA can't. Dependabot keeps these up to date.
 jobs:
   quality:
     name: format, lint, types, tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e  # v10.3.2
         with:
           enable-cache: true
       - name: Install (fails if uv.lock is out of date)
@@ -24,3 +30,44 @@ jobs:
         run: uv run mypy
       - name: Tests
         run: uv run pytest --cov=mind --cov-report=term-missing
+
+  security:
+    # Gate 3. Backstop for Gate 1 (local hooks): catches commits made without hooks.
+    # It runs after the push, so it can't un-publish anything; Gate 1 is what prevents leaks.
+    name: leak guards, dependency audit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ github.event.pull_request.base.sha }}
+      HEAD: ${{ github.event.pull_request.head.sha }}
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0   # full history, to inspect every commit in the PR
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e  # v10.3.2
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+
+      - name: Commit emails are GitHub noreply
+        run: uv run python tools/leakguard.py author --range "$BASE..$HEAD"
+
+      - name: No data files, no personal data patterns in changed files
+        run: |
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMR "$BASE...$HEAD")
+          if [ ${#files[@]} -eq 0 ]; then echo "no changed files"; exit 0; fi
+          uv run python tools/leakguard.py files "${files[@]}"
+          uv run python tools/leakguard.py pii "${files[@]}"
+
+      - name: Secrets in PR commits (gitleaks, checksum-verified)
+        run: |
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum --check
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks git --log-opts="$BASE..$HEAD" --redact --no-banner .
+
+      - name: Known vulnerabilities in dependencies
+        run: uv run pip-audit --skip-editable

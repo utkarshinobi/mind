@@ -1,0 +1,64 @@
+# Gate 1: runs on your laptop before a commit is created.
+# Install once with `make hooks`. Every check here also runs in CI (Gate 3),
+# except private terms, which live only in ~/.mind/leak-terms.txt.
+default_install_hook_types: [pre-commit, commit-msg]
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: detect-private-key
+      - id: check-merge-conflict
+
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: gitleaks (secrets in staged changes)
+        entry: gitleaks git --pre-commit --staged --redact --no-banner
+        language: system
+        pass_filenames: false
+
+      - id: leakguard-files
+        name: leakguard (no data files)
+        entry: uv run python tools/leakguard.py files
+        language: system
+
+      - id: leakguard-pii
+        name: leakguard (personal data patterns)
+        entry: uv run python tools/leakguard.py pii
+        language: system
+        types: [text]
+
+      - id: leakguard-terms
+        name: leakguard (your private terms)
+        entry: uv run python tools/leakguard.py terms
+        language: system
+        types: [text]
+
+      - id: leakguard-author
+        name: leakguard (commit email is noreply)
+        entry: uv run python tools/leakguard.py author
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: leakguard-message
+        name: leakguard (commit message)
+        entry: uv run python tools/leakguard.py msg
+        language: system
+        stages: [commit-msg]
+
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
