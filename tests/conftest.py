@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -31,6 +32,41 @@ FRAME_DEFAULTS: dict[str, Any] = {
 }
 
 MakeScreenpipeDb = Callable[[Sequence[dict[str, Any]]], Path]
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption(
+        "--update-golden",
+        action="store_true",
+        default=False,
+        help="rewrite golden files from current output instead of comparing",
+    )
+
+
+@pytest.fixture
+def update_golden(request: pytest.FixtureRequest) -> bool:
+    return bool(request.config.getoption("--update-golden"))
+
+
+def node(
+    text: str,
+    role: str = "AXStaticText",
+    *,
+    left: float = 0.1,
+    top: float = 0.1,
+    width: float = 0.2,
+    height: float = 0.02,
+) -> dict[str, Any]:
+    """One accessibility-tree node, shaped like Screenpipe's. Positions are screen fractions."""
+    return {
+        "role": role,
+        "text": text,
+        "bounds": {"left": left, "top": top, "width": width, "height": height},
+    }
+
+
+def tree(*nodes: dict[str, Any]) -> str:
+    return json.dumps(list(nodes))
 
 
 @pytest.fixture
