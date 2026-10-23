@@ -22,5 +22,10 @@ def policy_path() -> Path:
     return mind_home() / "policy.toml"
 
 
+def leak_terms_path() -> Path:
+    """Private terms the leak-guard hook blocks from commits (tools/leakguard.py)."""
+    return mind_home() / "leak-terms.txt"
+
+
 def screenpipe_db_path() -> Path:
     return Path(os.environ.get("MIND_SCREENPIPE_DB", Path.home() / ".screenpipe" / "db.sqlite"))

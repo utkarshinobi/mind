@@ -5,10 +5,13 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections.abc import Callable, Sequence
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import pytest
+
+from mind.screenpipe import Frame
 
 # The subset of Screenpipe's `frames` table that mind reads.
 SCREENPIPE_SCHEMA = """
@@ -67,6 +70,23 @@ def node(
 
 def tree(*nodes: dict[str, Any]) -> str:
     return json.dumps(list(nodes))
+
+
+T0 = datetime(2026, 8, 25, 19, 0, tzinfo=UTC)
+
+
+def frame(
+    id: int,
+    *,
+    at: timedelta = timedelta(0),
+    app: str | None = "Google Chrome",
+    url: str | None = "https://example.com/page",
+    window: str | None = "Example - Google Chrome",
+    tree: str | None = None,
+    full_text: str | None = "example text",
+) -> Frame:
+    """A Frame `at` after T0 (25 Aug 2026, 19:00 UTC)."""
+    return Frame(id, T0 + at, app, window, url, tree, full_text)
 
 
 @pytest.fixture
