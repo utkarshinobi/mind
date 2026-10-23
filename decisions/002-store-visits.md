@@ -33,3 +33,18 @@ Each visit stores its cleaned text, title, URL, start and end time, and the Scre
 - `mind` keeps cleaned text permanently, so it becomes the long-term memory and Screenpipe the short-term buffer.
 - Pointers to frames older than 14 days may stop resolving.
 - `[me]` means "probably me": reliable in Claude and Notion, less so in Chrome text boxes, which can hold pre-filled or shared text. Accuracy to be checked when Clean is built.
+
+## Follow-up: verified on real data (22 Oct 2026)
+
+First full run: 22,010 frames → 1,421 visits in ~16 s; 638 frames blocked by site; zero
+stored visits from a blocked site.
+
+**`[me]` accuracy.** A random sample of 20 Chrome `[me]` lines: 20 of 20 were genuinely typed
+by the user (14 code in an online editor, 6 prompts or messages). Known exceptions, outside
+Chrome: Terminal and VS Code render their whole buffer as one text area, so command output and
+viewed code are tagged `[me]` too. Open question for a follow-up decision.
+
+**Boilerplate vs. typed text.** Of 562 lines judged boilerplate, 67 were typed somewhere. Most
+are right to drop (editor starter templates, text-box placeholders like "Write a message…"),
+but a phrase the user typed in 8+ visits is dropped as well. Open question: should `[me]`
+lines be exempt from the boilerplate rule?
