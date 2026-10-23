@@ -93,10 +93,11 @@ This is the most important idea in the whole design.
 
 ```
   1 Capture     ██████████  done (Screenpipe, hardened)
-  2 Clean       ███░░░░░░░  idea proven in prototype, not decided
+  2 Clean       ██████████  built: privacy, visits, N5 noise removal (decision 001)
   3 Chunk       ███░░░░░░░  idea proven in prototype, not decided
   4 Embed       ██░░░░░░░░  model downloaded, not decided
-  5 Store       ██░░░░░░░░  prototype only
+  5 Store       █████░░░░░  5a built: visits + [me]/[read] lines + frame pointers (decision 002)
+                            5b (vectors) not decided
   6 Ask         ██░░░░░░░░  prototype CLI only
   7 Retrieve    ██░░░░░░░░  prototype only
   8 Prompt      █░░░░░░░░░  prototype only

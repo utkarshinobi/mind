@@ -30,6 +30,16 @@ Served by Ollama on `localhost:11434` (`brew services start ollama`).
 `qwen3:4b` reasons before answering and ignores `/no_think`, so it needs a much larger
 `num_predict` and is a poor fit for structured extraction. Default to `llama3.2:3b`.
 
+## Usage
+
+```bash
+uv run mind init            # creates ~/.mind/policy.toml + leak-terms.txt (private, never committed)
+                            # then add your sensitive sites to policy.toml
+uv run mind clean           # Screenpipe -> clean visits in ~/.mind/mind.db
+uv run mind stats
+uv run mind show 42         # one visit, lines tagged [me] or [read]
+```
+
 ## Development
 
 Requires [uv](https://docs.astral.sh/uv/) (`brew install uv`).
