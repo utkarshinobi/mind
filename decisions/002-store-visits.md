@@ -42,9 +42,18 @@ stored visits from a blocked site.
 **`[me]` accuracy.** A random sample of 20 Chrome `[me]` lines: 20 of 20 were genuinely typed
 by the user (14 code in an online editor, 6 prompts or messages). Known exceptions, outside
 Chrome: Terminal and VS Code render their whole buffer as one text area, so command output and
-viewed code are tagged `[me]` too. Open question for a follow-up decision.
+viewed code are tagged `[me]` too. **Resolved 24 Oct:** Terminal and VS Code text areas are now `read`.
 
 **Boilerplate vs. typed text.** Of 562 lines judged boilerplate, 67 were typed somewhere. Most
 are right to drop (editor starter templates, text-box placeholders like "Write a message…"),
-but a phrase the user typed in 8+ visits is dropped as well. Open question: should `[me]`
-lines be exempt from the boilerplate rule?
+but a phrase the user typed in 8+ visits is dropped as well. **Resolved 24 Oct:** `[me]` lines
+are exempt (see decision 001 amendment).
+
+## Amendment, 24 Oct 2026
+
+- **Terminal and VS Code** text areas are display buffers (command output, an open file), so
+  they are tagged `read`. `me` now means text typed into Chrome, Claude, Notion, or Typeless.
+- **Backups:** `~/.mind` stays in Time Machine. It is the only permanent copy, since Screenpipe
+  deletes raw data after 14 days. Backups should be encrypted.
+- **Deferred to Part 3 (Chunk):** one page can split into several visits when its sub-pages
+  have different URLs (e.g. a problem's description and submission pages).

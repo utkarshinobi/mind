@@ -48,7 +48,7 @@ def clean(frames: Iterable[Frame], policy: Policy) -> CleanResult:
                 stats.blocked_host += 1
             else:
                 stats.frames_kept += 1
-                yield frame, extract_lines(frame.tree, frame.full_text)
+                yield frame, extract_lines(frame.tree, frame.full_text, frame.app)
 
     visits = group_visits(allowed_with_lines())
     with_text = [v for v in visits if v.lines]

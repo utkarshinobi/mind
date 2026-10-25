@@ -33,6 +33,9 @@ CONTROL_ROLES = frozenset(
     }
 )
 TYPED_ROLE = "AXTextArea"
+# Apps whose text area is a display buffer (terminal output, an open file), not a box
+# you type into. Their text is `read`, so `me` stays trustworthy (decision 002 amendment).
+BUFFER_APPS = frozenset({"Terminal", "Code"})
 MIN_ALNUM = 3
 # Fragments on one row further apart than this (fraction of screen width) are
 # separate columns, e.g. a sidebar next to the main content.
@@ -140,10 +143,13 @@ def split_columns(row: list[Node]) -> list[list[Node]]:
     return segments
 
 
-def extract_lines(tree_json: str | None, full_text: str | None) -> list[Line]:
+def extract_lines(
+    tree_json: str | None, full_text: str | None, app: str | None = None
+) -> list[Line]:
     nodes = parse_nodes(tree_json) if tree_json else None
     if nodes is None:
         return _from_full_text(full_text)
+    typed_author = Author.READ if app in BUFFER_APPS else Author.ME
 
     # Each block is (top, lines), so typed text and read text interleave in screen order.
     blocks: list[tuple[float, list[Line]]] = []
@@ -151,7 +157,7 @@ def extract_lines(tree_json: str | None, full_text: str | None) -> list[Line]:
         if node.role == TYPED_ROLE:
             # Typed text is kept as typed: indentation and spacing can matter (code, commands).
             typed = [t.rstrip() for t in node.text.splitlines()]
-            blocks.append((node.top, [Line(t, Author.ME) for t in typed if has_enough_text(t)]))
+            blocks.append((node.top, [Line(t, typed_author) for t in typed if has_enough_text(t)]))
 
     content = [n for n in nodes if n.role not in CONTROL_ROLES and n.role != TYPED_ROLE]
     for row in group_rows(content):

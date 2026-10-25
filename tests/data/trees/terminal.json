@@ -1,0 +1,4 @@
+[
+  {"role": "AXStaticText", "text": "project - zsh - 120x40", "bounds": {"left": 0.4, "top": 0.01, "width": 0.2, "height": 0.02}},
+  {"role": "AXTextArea", "text": "dev@laptop project % make test\n43 passed in 0.22s\ndev@laptop project % git status\nnothing to commit, working tree clean", "bounds": {"left": 0.0, "top": 0.04, "width": 1.0, "height": 0.9}}
+]

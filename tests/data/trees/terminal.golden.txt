@@ -1,0 +1,5 @@
+[read] project - zsh - 120x40
+[read] dev@laptop project % make test
+[read] 43 passed in 0.22s
+[read] dev@laptop project % git status
+[read] nothing to commit, working tree clean

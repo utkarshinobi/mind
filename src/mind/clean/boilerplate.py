@@ -3,6 +3,9 @@
 A short line that shows up in many different visits is site chrome ("LeetCode Logo",
 tab labels), not content. Runs after the structure step, so real words like `nums`
 have already been glued into sentences that are unique to one page.
+
+Lines you typed (`me`) are never boilerplate (decision 001 amendment): text you write
+again and again is a theme you keep circling, which is what the idea engine is for.
 """
 
 from __future__ import annotations
@@ -11,7 +14,7 @@ from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 
-from mind.visit import Visit
+from mind.visit import Author, Visit
 
 MIN_VISITS = 8
 MAX_LEN = 100
@@ -29,7 +32,8 @@ def boilerplate_lines(
 ) -> set[str]:
     seen_in = Counter[str]()
     for visit in visits:
-        seen_in.update({line.text for line in visit.lines})  # a set: count each visit once
+        # A set, so each visit counts once. Only `read` lines can be boilerplate.
+        seen_in.update({line.text for line in visit.lines if line.author is Author.READ})
     return {text for text, n in seen_in.items() if n >= min_visits and len(text) <= max_len}
 
 
@@ -39,7 +43,9 @@ def drop_boilerplate(
     boiler = boilerplate_lines(visits, min_visits, max_len)
     kept, dropped, emptied = [], 0, 0
     for visit in visits:
-        lines = tuple(line for line in visit.lines if line.text not in boiler)
+        lines = tuple(
+            line for line in visit.lines if line.author is Author.ME or line.text not in boiler
+        )
         dropped += len(visit.lines) - len(lines)
         if lines:
             kept.append(replace(visit, lines=lines))
