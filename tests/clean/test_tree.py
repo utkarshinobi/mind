@@ -7,6 +7,12 @@ from mind.clean.tree import CONTROL_ROLES, extract_lines
 from mind.visit import Author, Line
 
 TREES = Path(__file__).parent.parent / "data" / "trees"
+GOLDEN_APPS = {
+    "claude_chat": "Claude",
+    "leetcode_problem": "Google Chrome",
+    "mail_inbox": "Google Chrome",
+    "terminal": "Terminal",
+}
 
 
 def texts(lines: list[Line]) -> list[str]:
@@ -77,6 +83,19 @@ def test_multiline_text_area_split_into_lines() -> None:
     assert lines == [Line("first thought", Author.ME), Line("second thought", Author.ME)]
 
 
+@pytest.mark.parametrize("app", ["Terminal", "Code"])
+def test_buffer_apps_text_area_is_read(app: str) -> None:
+    # Their text area is terminal output or an open file, not something you typed.
+    lines = extract_lines(tree(node("make test\n43 passed", "AXTextArea")), None, app)
+    assert lines == [Line("make test"), Line("43 passed")]
+
+
+@pytest.mark.parametrize("app", ["Google Chrome", "Claude", "Notion", "Typeless", None])
+def test_other_apps_text_area_is_me(app: str | None) -> None:
+    lines = extract_lines(tree(node("my own words here", "AXTextArea")), None, app)
+    assert lines == [Line("my own words here", Author.ME)]
+
+
 def test_typed_text_keeps_indentation_and_spacing() -> None:
     # Regression: punctuation tidying used to strip code indentation and "% make" spacing.
     lines = extract_lines(
@@ -112,10 +131,16 @@ def test_unusable_tree_falls_back_to_full_text(tree_json: str | None) -> None:
     assert texts(lines) == ["Reverse Pairs", "Example 1:"]
 
 
-@pytest.mark.parametrize("name", sorted(p.stem for p in TREES.glob("*.json")))
+def test_golden_screens_present() -> None:
+    # Regression: a too-broad .gitignore once kept tests/data out of git, so CI collected
+    # zero golden cases and silently skipped them. Fail loudly instead.
+    assert set(GOLDEN_APPS) == {p.stem for p in TREES.glob("*.json")}
+
+
+@pytest.mark.parametrize("name", sorted(GOLDEN_APPS))
 def test_golden(name: str, update_golden: bool) -> None:
     """Whole synthetic screens -> expected lines. Run `pytest --update-golden` to rewrite."""
-    lines = extract_lines((TREES / f"{name}.json").read_text(), None)
+    lines = extract_lines((TREES / f"{name}.json").read_text(), None, GOLDEN_APPS[name])
     actual = "".join(f"[{line.author}] {line.text}\n" for line in lines)
     golden = TREES / f"{name}.golden.txt"
     if update_golden:

@@ -1,7 +1,9 @@
+from dataclasses import replace
+
 from conftest import T0
 
 from mind.clean.boilerplate import drop_boilerplate
-from mind.visit import Line, Visit
+from mind.visit import Author, Line, Visit
 
 
 def visit(n: int, *texts: str) -> Visit:
@@ -44,6 +46,22 @@ def test_repeats_inside_one_visit_count_once() -> None:
     visits = [visit(i, "Settings", f"content {i}") for i in range(6)]
     visits.append(visit(6, "Settings", "Settings", "Settings", "Settings", "Settings"))
     assert drop_boilerplate(visits).lines_dropped == 0
+
+
+def test_typed_line_in_eight_visits_kept() -> None:
+    # A phrase you keep typing is a theme, not site chrome.
+    visits = [visit(i, f"content {i}") for i in range(8)]
+    visits = [replace(v, lines=(*v.lines, Line("case for an idea", Author.ME))) for v in visits]
+    result = drop_boilerplate(visits)
+    assert result.lines_dropped == 0
+
+
+def test_same_text_dropped_where_read_kept_where_typed() -> None:
+    visits = [visit(i, "Settings", f"content {i}") for i in range(8)]
+    visits.append(replace(visit(8, "content 8"), lines=(Line("Settings", Author.ME),)))
+    result = drop_boilerplate(visits)
+    assert result.lines_dropped == 8
+    assert result.visits[-1].lines == (Line("Settings", Author.ME),)
 
 
 def test_visit_left_empty_is_removed() -> None:

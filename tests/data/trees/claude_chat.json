@@ -1,0 +1,11 @@
+[
+  {"role": "AXButton", "text": "New chat", "bounds": {"left": 0.01, "top": 0.05, "width": 0.1, "height": 0.03}},
+  {"role": "AXStaticText", "text": "Recents", "bounds": {"left": 0.01, "top": 0.1, "width": 0.06, "height": 0.02}},
+  {"role": "AXLink", "text": "Trip planning ideas", "bounds": {"left": 0.01, "top": 0.14, "width": 0.15, "height": 0.02}},
+  {"role": "AXStaticText", "text": "How do Python decorators work?", "bounds": {"left": 0.3, "top": 0.14, "width": 0.4, "height": 0.02}},
+  {"role": "AXLink", "text": "Python decorators", "bounds": {"left": 0.01, "top": 0.18, "width": 0.15, "height": 0.02}},
+  {"role": "AXStaticText", "text": "A decorator is a function that wraps another function.", "bounds": {"left": 0.3, "top": 0.18, "width": 0.5, "height": 0.02}},
+  {"role": "AXStaticText", "text": "It runs code before and after the wrapped call.", "bounds": {"left": 0.3, "top": 0.21, "width": 0.5, "height": 0.02}},
+  {"role": "AXTextArea", "text": "Can you show an example with arguments?", "bounds": {"left": 0.3, "top": 0.85, "width": 0.45, "height": 0.05}},
+  {"role": "AXButton", "text": "Send message", "bounds": {"left": 0.8, "top": 0.85, "width": 0.04, "height": 0.04}}
+]

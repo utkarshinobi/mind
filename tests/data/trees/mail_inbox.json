@@ -1,0 +1,14 @@
+[
+  {"role": "AXHeading", "text": "Inbox", "bounds": {"left": 0.05, "top": 0.1, "width": 0.05, "height": 0.03}},
+  {"role": "AXCheckBox", "text": "Select all", "bounds": {"left": 0.02, "top": 0.15, "width": 0.02, "height": 0.02}},
+  {"role": "AXCheckBox", "text": "Select", "bounds": {"left": 0.02, "top": 0.2, "width": 0.02, "height": 0.02}},
+  {"role": "AXCell", "text": "Alex Rivera", "bounds": {"left": 0.05, "top": 0.2, "width": 0.12, "height": 0.02}},
+  {"role": "AXCell", "text": "Team offsite plan", "bounds": {"left": 0.18, "top": 0.2, "width": 0.15, "height": 0.02}},
+  {"role": "AXCell", "text": "- Agenda attached for Friday", "bounds": {"left": 0.34, "top": 0.2, "width": 0.3, "height": 0.02}},
+  {"role": "AXCell", "text": "Oct 9", "bounds": {"left": 0.9, "top": 0.2, "width": 0.04, "height": 0.02}},
+  {"role": "AXCheckBox", "text": "Select", "bounds": {"left": 0.02, "top": 0.24, "width": 0.02, "height": 0.02}},
+  {"role": "AXCell", "text": "Jordan Lee", "bounds": {"left": 0.05, "top": 0.24, "width": 0.12, "height": 0.02}},
+  {"role": "AXCell", "text": "Re: reading list", "bounds": {"left": 0.18, "top": 0.24, "width": 0.15, "height": 0.02}},
+  {"role": "AXCell", "text": "- Here are the three books", "bounds": {"left": 0.34, "top": 0.24, "width": 0.3, "height": 0.02}},
+  {"role": "AXCell", "text": "Oct 8", "bounds": {"left": 0.9, "top": 0.24, "width": 0.04, "height": 0.02}}
+]

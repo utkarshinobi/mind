@@ -1,0 +1,7 @@
+[read] Recents
+[read] Trip planning ideas
+[read] How do Python decorators work?
+[read] Python decorators
+[read] A decorator is a function that wraps another function.
+[read] It runs code before and after the wrapped call.
+[me] Can you show an example with arguments?

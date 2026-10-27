@@ -51,3 +51,11 @@ Tested on 15 real lines from one LeetCode frame (8 junk, 7 real):
 - Cleaned text is ~10,000× smaller than raw (33 MB → 3 KB for one visit).
 - Occasionally loses a short real word that sits alone on its row (e.g. difficulty labels).
 - The allowlist must be updated by hand when a new useful app appears.
+
+## Amendment, 24 Oct 2026: typed lines are never boilerplate
+
+Real data showed the statistics step dropping text the user typed in 8+ visits. Most were
+templates or text-box placeholders, but some were the user's own recurring thoughts, which
+are exactly the "themes you keep circling" the idea engine needs. **`me` lines are now exempt
+from step ③**; only `read` lines are counted and dropped. Cost: a few placeholders and editor
+starter templates remain as `me` noise.
