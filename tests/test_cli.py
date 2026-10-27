@@ -34,6 +34,13 @@ def screenpipe(make_screenpipe_db: MakeScreenpipeDb, monkeypatch: pytest.MonkeyP
                 "full_text": "account balance",
             },
             {"id": 4, "timestamp": "2026-08-25T19:03:00+00:00", "app_name": "Finder"},
+            {  # the same bank, captured in a moment when Chrome reported no URL
+                "id": 5,
+                "timestamp": "2026-08-25T19:04:00+00:00",
+                "browser_url": None,
+                "window_name": "Home - My Bank - Google Chrome",
+                "full_text": "account balance",
+            },
         ]
     )
     monkeypatch.setenv("MIND_SCREENPIPE_DB", str(path))
@@ -86,8 +93,9 @@ def test_clean_end_to_end(
     assert main(["clean"]) == 0
 
     out = capsys.readouterr().out
-    assert "Cleaned 3 frames" in out  # Finder is filtered out at read time
+    assert "Cleaned 4 frames" in out  # Finder is filtered out at read time
     assert "1 by site" in out
+    assert "1 browser screens with no URL" in out
     assert "Visits         1" in out
     assert (mind_home / "mind.db").exists()  # MIND_HOME respected
 

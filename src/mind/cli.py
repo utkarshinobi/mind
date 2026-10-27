@@ -114,7 +114,10 @@ def cmd_clean(screenpipe_db: Path, db: Path) -> int:
 def print_summary(s: CleanStats, db: Path, seconds: float) -> None:
     print(f"Cleaned {s.frames_read:,} frames in {seconds:.1f}s")
     print(f"  kept         {s.frames_kept:,}")
-    print(f"  blocked      {s.blocked_app:,} by app · {s.blocked_host:,} by site")
+    print(
+        f"  blocked      {s.blocked_app:,} by app · {s.blocked_host:,} by site · "
+        f"{s.blocked_no_url:,} browser screens with no URL"
+    )
     print(f"Visits         {s.visits:,}  →  {db}")
     print(f"Lines          {s.lines_read:,} read · {s.lines_me:,} me")
     print(f"Boilerplate    {s.boilerplate_dropped:,} lines dropped")
