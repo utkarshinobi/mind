@@ -18,6 +18,10 @@ DEFAULT_APPS = frozenset(
     {"Google Chrome", "Claude", "Preview", "Code", "Notion", "Typeless", "Terminal"}
 )
 
+# Browsers report a URL per screen. When one doesn't, the site can't be checked against the
+# blocklist, so the screen is dropped: unverifiable means not indexed (fails safe).
+BROWSER_APPS = frozenset({"Google Chrome"})
+
 # Generic sensitive sites, safe to publish because they reveal nothing personal.
 DEFAULT_BLOCKED_HOSTS = (
     "*.1password.com",
@@ -73,6 +77,10 @@ class Policy:
 
     def allows_app(self, app: str | None) -> bool:
         return app is not None and app in self.apps
+
+    def unverifiable(self, app: str | None, url: str | None) -> bool:
+        """A browser screen with no URL: its site can't be checked, so don't index it."""
+        return app in BROWSER_APPS and not url
 
     def blocks_url(self, url: str | None) -> bool:
         if not url:

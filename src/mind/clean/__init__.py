@@ -21,6 +21,7 @@ class CleanStats:
     frames_read: int = 0
     blocked_app: int = 0
     blocked_host: int = 0
+    blocked_no_url: int = 0  # browser screens whose site can't be verified
     frames_kept: int = 0
     visits: int = 0
     lines_me: int = 0
@@ -44,6 +45,8 @@ def clean(frames: Iterable[Frame], policy: Policy) -> CleanResult:
             stats.frames_read += 1
             if not policy.allows_app(frame.app):
                 stats.blocked_app += 1
+            elif policy.unverifiable(frame.app, frame.url):
+                stats.blocked_no_url += 1
             elif policy.blocks_url(frame.url):
                 stats.blocked_host += 1
             else:

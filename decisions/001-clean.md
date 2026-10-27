@@ -59,3 +59,11 @@ templates or text-box placeholders, but some were the user's own recurring thoug
 are exactly the "themes you keep circling" the idea engine needs. **`me` lines are now exempt
 from step ③**; only `read` lines are counted and dropped. Cost: a few placeholders and editor
 starter templates remain as `me` noise.
+
+## Amendment, 26 Oct 2026: browser screens with no URL are not indexed
+
+The site blocklist checks each screen's URL. About 9% of Chrome screens are captured with no
+URL at all, so a page on a blocked site could pass through unchecked, and a few did. Since the
+site can't be verified, **browser screens with no URL are now dropped**, the same fail-safe
+reasoning as the app allowlist. Cost: about 2% of captured text. The summary reports these
+separately. Two more sensitive sites were added to the private, local policy file.

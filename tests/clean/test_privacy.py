@@ -52,6 +52,21 @@ def test_frame_without_url_allowed() -> None:
     assert not DEFAULT_POLICY.blocks_url(None)
 
 
+@pytest.mark.parametrize("url", [None, ""])
+def test_browser_screen_without_url_is_unverifiable(url: str | None) -> None:
+    # Regression: a blocked site's page captured with no URL slipped past the host check.
+    assert DEFAULT_POLICY.unverifiable("Google Chrome", url)
+
+
+@pytest.mark.parametrize(
+    ("app", "url"),
+    [("Google Chrome", "https://site.test/a"), ("Code", None), ("Claude", None)],
+)
+def test_verifiable_screens(app: str, url: str | None) -> None:
+    # Non-browser apps never have URLs; their window title identifies the page.
+    assert not DEFAULT_POLICY.unverifiable(app, url)
+
+
 def write_policy(tmp_path: Path, text: str) -> Path:
     path = tmp_path / "policy.toml"
     path.write_text(text, encoding="utf-8")
