@@ -4,8 +4,12 @@ Screenpipe stores every piece of on-screen text as a node with a role and a posi
 This step uses both (decision 001, N5 steps 1 and 2):
 
   1. Drop controls (buttons, tabs, checkboxes, dropdowns) by role.
-  2. Glue fragments that sit on the same screen row back into sentences,
-     so "Given an integer array" + "nums" + ", return" becomes one line.
+  2. Glue neighboring fragments back into sentences, so "Given an integer array"
+     + "nums" + ", return" becomes one line.
+
+Nodes are read in Screenpipe's order, which is reading order. Positions only decide where
+a line ends. They can't be used to sort: in a scrolling area, an app may report hundreds
+of nodes at one height, and sorting those left to right shuffles paragraphs and code.
 
 Text the user typed (AXTextArea) is kept as its own block and tagged `me`.
 Falls back to the flat `full_text` when a frame has no usable tree.
@@ -37,7 +41,7 @@ TYPED_ROLE = "AXTextArea"
 # you type into. Their text is `read`, so `me` stays trustworthy (decision 002 amendment).
 BUFFER_APPS = frozenset({"Terminal", "Code"})
 MIN_ALNUM = 3
-# Fragments on one row further apart than this (fraction of screen width) are
+# Neighboring fragments further apart than this (fraction of screen width) are
 # separate columns, e.g. a sidebar next to the main content.
 COLUMN_GAP = 0.04
 
@@ -114,33 +118,21 @@ def tidy(text: str) -> str:
     return _SPACE_AFTER_OPEN.sub(r"\1", text)
 
 
-def group_rows(nodes: list[Node]) -> list[list[Node]]:
-    """Group nodes into visual rows: a node joins a row if its vertical center
-    falls inside the row's band. Each row is returned sorted left to right."""
-    rows: list[list[Node]] = []
-    for node in sorted(nodes, key=lambda n: (n.top, n.left)):
-        if rows:
-            row = rows[-1]
-            top, bottom = min(n.top for n in row), max(n.bottom for n in row)
-            if top <= node.center_y <= bottom:
-                row.append(node)
-                continue
-        rows.append([node])
-    return [sorted(row, key=lambda n: n.left) for row in rows]
+def starts_new_line(line: list[Node], node: Node) -> bool:
+    """A node ends the current line if it moved down or up, jumped back left, or jumped
+    far right. Slightly lower inline fragments (like `code` in a sentence) stay on the line."""
+    prev = line[-1]
+    top, bottom = min(n.top for n in line), max(n.bottom for n in line)
+    return (
+        not top <= node.center_y <= bottom
+        or node.left < prev.left
+        or node.left - prev.right > COLUMN_GAP
+    )
 
 
-def split_columns(row: list[Node]) -> list[list[Node]]:
-    """Split a left-to-right row wherever there's a large horizontal gap."""
-    segments: list[list[Node]] = [[row[0]]]
-    for node in row[1:]:
-        prev = segments[-1][-1]
-        if node.left - prev.right > COLUMN_GAP:
-            segments.append([node])
-        elif node.text == prev.text and node.left < prev.right:
-            continue  # nested duplicate, e.g. a link and the text inside it
-        else:
-            segments[-1].append(node)
-    return segments
+def is_nested_duplicate(prev: Node, node: Node) -> bool:
+    """The same text at the same spot, e.g. a link and the text inside it."""
+    return node.text == prev.text and node.left < prev.right
 
 
 def extract_lines(
@@ -151,23 +143,30 @@ def extract_lines(
         return _from_full_text(full_text)
     typed_author = Author.READ if app in BUFFER_APPS else Author.ME
 
-    # Each block is (top, lines), so typed text and read text interleave in screen order.
-    blocks: list[tuple[float, list[Line]]] = []
+    lines: list[Line] = []
+    current: list[Node] = []
+
+    def finish_line() -> None:
+        text = tidy(" ".join(n.text for n in current))
+        if has_enough_text(text):
+            lines.append(Line(text))
+        current.clear()
+
     for node in nodes:
+        if node.role in CONTROL_ROLES:
+            continue
         if node.role == TYPED_ROLE:
+            finish_line()
             # Typed text is kept as typed: indentation and spacing can matter (code, commands).
-            typed = [t.rstrip() for t in node.text.splitlines()]
-            blocks.append((node.top, [Line(t, typed_author) for t in typed if has_enough_text(t)]))
-
-    content = [n for n in nodes if n.role not in CONTROL_ROLES and n.role != TYPED_ROLE]
-    for row in group_rows(content):
-        for segment in split_columns(row):
-            text = tidy(" ".join(n.text for n in segment))
-            if has_enough_text(text):
-                blocks.append((segment[0].top, [Line(text)]))
-
-    blocks.sort(key=lambda b: b[0])
-    return [line for _, lines in blocks for line in lines]
+            typed = (t.rstrip() for t in node.text.splitlines())
+            lines.extend(Line(t, typed_author) for t in typed if has_enough_text(t))
+        elif current and starts_new_line(current, node):
+            finish_line()
+            current.append(node)
+        elif not (current and is_nested_duplicate(current[-1], node)):
+            current.append(node)
+    finish_line()
+    return lines
 
 
 def _from_full_text(full_text: str | None) -> list[Line]:

@@ -42,7 +42,7 @@ def test_fragments_on_one_row_glued_into_sentence() -> None:
     assert texts(lines) == ["Given an integer array nums, return the number of pairs."]
 
 
-def test_row_ordered_by_left_edge_when_fragment_sits_lower() -> None:
+def test_fragment_sitting_slightly_lower_stays_on_the_line() -> None:
     # Inline code is often rendered a pixel or two lower than the text around it.
     lines = extract_lines(
         tree(
@@ -53,6 +53,29 @@ def test_row_ordered_by_left_edge_when_fragment_sits_lower() -> None:
         None,
     )
     assert texts(lines) == ["Given an integer array nums, return the count"]
+
+
+def test_nodes_sharing_one_height_keep_screenpipes_order() -> None:
+    # Regression: scrolling areas report many nodes at one height. Sorting that "row"
+    # left to right shuffled paragraphs and code into one giant scrambled line.
+    lines = extract_lines(
+        tree(
+            node("def", left=0.30, top=0.1, width=0.02),
+            node("search", left=0.33, top=0.1, width=0.05),
+            node("(mat):", left=0.39, top=0.1, width=0.05),
+            node("lo = 0", left=0.30, top=0.1, width=0.05),
+            node("hi = len", left=0.36, top=0.1, width=0.05),
+        ),
+        None,
+    )
+    assert texts(lines) == ["def search (mat):", "lo = 0 hi = len"]
+
+
+def test_moving_down_starts_a_new_line() -> None:
+    lines = extract_lines(
+        tree(node("first line here", top=0.1), node("second line here", top=0.2)), None
+    )
+    assert texts(lines) == ["first line here", "second line here"]
 
 
 def test_columns_at_same_height_stay_separate() -> None:
@@ -104,15 +127,20 @@ def test_typed_text_keeps_indentation_and_spacing() -> None:
     assert texts(lines) == ["def f(x):", "    return x", "user % make test"]
 
 
-def test_typed_and_read_text_interleave_in_screen_order() -> None:
+def test_typed_and_read_text_stay_in_screenpipes_order() -> None:
     lines = extract_lines(
         tree(
-            node("question I typed", "AXTextArea", top=0.8),
             node("answer I read", top=0.4),
+            node("question I typed", "AXTextArea", top=0.8),
+            node("footer text here", top=0.9),
         ),
         None,
     )
-    assert lines == [Line("answer I read"), Line("question I typed", Author.ME)]
+    assert lines == [
+        Line("answer I read"),
+        Line("question I typed", Author.ME),
+        Line("footer text here"),
+    ]
 
 
 @pytest.mark.parametrize("text", ["ok", "--", "·  ·", "1."])

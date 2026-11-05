@@ -67,3 +67,23 @@ URL at all, so a page on a blocked site could pass through unchecked, and a few 
 site can't be verified, **browser screens with no URL are now dropped**, the same fail-safe
 reasoning as the app allowlist. Cost: about 2% of captured text. The summary reports these
 separately. Two more sensitive sites were added to the private, local policy file.
+
+## Amendment, 4 Nov 2026: read text in Screenpipe's order, never sort by position
+
+Step ② grouped nodes by screen height and sorted each group left to right. In a scrolling
+area, apps report hundreds of nodes at one height, so that shuffled paragraphs and code into
+giant scrambled lines (68% of sampled Claude text, 27% of Chrome). Screenpipe's own order was
+correct all along. **Nodes are now read in that order**, and position only decides where a
+line ends: a new line starts when a node moves down or up, jumps back left, or jumps far right.
+
+Real data, before → after:
+
+| | Before | After |
+|:--|--:|--:|
+| Sampled Claude text in giant lines | 68% | 4% |
+| Sampled Chrome text in giant lines | 27% | 1% |
+| Total Claude text in the store | 5.7M chars | 1.56M chars |
+
+Repeated lines now match and get removed, which explains the drop in Claude text. Known cost:
+very common short code lines (like `else:`) are dropped as boilerplate, so stored code can have
+small holes.
