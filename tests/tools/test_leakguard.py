@@ -148,6 +148,11 @@ def test_missing_terms_file_warns_and_passes(
         ("noreply@github.com", True),
         ("someone@gmail.com", False),  # leakguard: allow
         ("someone@users.noreply.github.com.evil.com", False),  # leakguard: allow
+        # Regression: Dependabot's real identity was rejected because of the "[bot]" brackets.
+        ("49699333+dependabot[bot]@users.noreply.github.com", True),
+        # Only that exact identity is allowed, not any "[bot]" address.
+        ("1+evil[bot]@users.noreply.github.com", False),
+        ("49699333+dependabot[bot]@users.noreply.github.com.evil.com", False),
     ],
 )
 def test_email_ok(email: str, ok: bool) -> None:
