@@ -35,6 +35,9 @@ CARD = re.compile(r"(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)")
 SSN = re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")
 NOREPLY = re.compile(r"^(\d+\+)?[A-Za-z0-9-]+@users\.noreply\.github\.com$")
 GITHUB_COMMITTER = "noreply@github.com"  # commits GitHub itself creates (merges, web edits)
+# Dependabot's exact identity. Allowed by name, not by pattern, so a "[bot]" address can't be
+# used to slip a different email past the check.
+DEPENDABOT = "49699333+dependabot[bot]@users.noreply.github.com"
 
 
 @dataclass(frozen=True)
@@ -185,7 +188,7 @@ def check_message(path: str, terms: Sequence[str]) -> list[Finding]:
 
 
 def email_ok(email: str) -> bool:
-    return bool(NOREPLY.match(email)) or email == GITHUB_COMMITTER
+    return bool(NOREPLY.match(email)) or email in {GITHUB_COMMITTER, DEPENDABOT}
 
 
 def git(*args: str) -> str:
